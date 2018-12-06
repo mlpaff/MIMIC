@@ -10,24 +10,32 @@ import pickle as pk
 import pandas as pd
 import base64
 
+from gensim.models import Word2Vec
+import re
+import nltk
+import string
+tokenizer = nltk.data.load('nltk:tokenizers/punkt/english.pickle')
 
 ##### Import data and model #####
 
 ## Model
-# filename = 'lr_model.pkl'
-# with open(filename, 'rb') as inFile:
-#     lr_model = pk.load(inFile)
+filename = './models/nlp_model.pkl'
+with open(filename, 'rb') as inFile:
+    lr_model = pk.load(inFile)
 
-# ## Data
-# filename = 'test_data.pkl'
-# test_data = pd.read_pickle(filename)
+## Data
+filename = 'data/adm_table.pkl'
+adm_data = pd.read_pickle(filename)
+
+## Word2Vec model 
+model = Word2Vec.load('mimic_w2v_model.bin')
 
 ## Nano Image
 image_nano = 'nano-logo.svg'
 encoded_nano = base64.b64encode(open(image_nano, 'rb').read())
 
 #### Create options for patient ID Dropdown - This will probably be replaced in the future
-patients = ['12321', '312123', '1231312'] #test_data.subject_id
+patients = adm_data.hadm_id
 
 app = dash.Dash()
 
