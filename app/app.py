@@ -8,31 +8,36 @@ from datetime import datetime as dt
 import os
 import pickle as pk
 import pandas as pd
+import numpy as np
 import base64
 
-from gensim.models import Word2Vec
-import re
+from gensim.models import Word2Vec, KeyedVectors
+import nlpHelpers as H
 import nltk
-import string
-tokenizer = nltk.data.load('nltk:tokenizers/punkt/english.pickle')
 
 ##### Import data and model #####
 
 ## Model
-filename = './models/nlp_model.pkl'
+filename = '../models/nlp_model.pkl'
 with open(filename, 'rb') as inFile:
     lr_model = pk.load(inFile)
 
 ## Data
-filename = 'data/adm_table.pkl'
+filename = '../data/adm_table.pkl'
 adm_data = pd.read_pickle(filename)
 
 ## Word2Vec model 
-model = Word2Vec.load('mimic_w2v_model.bin')
+w2vModel = KeyedVectors.load_word2vec_format('../models/mimic_w2v_model.bin', binary=True)
+# Get vectorizer
+w2vVectorizer = H.MeanEmbeddingVectorizer(w2vModel)
 
 ## Nano Image
 image_nano = 'nano-logo.svg'
 encoded_nano = base64.b64encode(open(image_nano, 'rb').read())
+
+## Hard-coded feature names
+feature_set_1 = ['admission_type', 'total_prior_admits','gender', 'age', 'length_of_stay', \
+                 'num_medications', 'num_lab_tests', 'perc_tests_abnormal', 'num_diagnosis']
 
 #### Create options for patient ID Dropdown - This will probably be replaced in the future
 patients = adm_data.hadm_id
@@ -300,14 +305,22 @@ style={
      State('discharge', 'value')]
 )
 def predict_hai_risk(n_clicks, pat_name, pat_id, ins, adm_type, diagnosis, discharge):
+    pat_id = int(pat_id)
     if n_clicks > 0 and (pat_name == None or pat_id==None):
         return 'Please complete data entry...'
     if pat_id == None:
         return 'Enter patient data for readmission risk evaluation...'
-    prob = 40
-    # pat = test_data[test_data['subject_id'] == int(pat_id)]
-    # pat = pat.drop('subject_id', axis = 1)
-    # prob = lr_model.predict_proba(pat)[0][1] * 100
+
+    note = discharge.replace("\\n", " ")
+    
+    # print(H.tokenize_clinic_notes(note)[:20])
+
+    note_vector = w2vVectorizer.vectorizeSingleNote(note)
+
+    
+    pat = H.prepPatient(adm_data, pat_id, note_vector, feature_set_1)
+    prob = lr_model.predict_proba([pat])[0][1] * 100
+    
     if prob >= 30:
         return '{} has a {}% risk for developing a complication within 30 days. Recommend scheduling follow up with primary care physician within 2 weeks'.format(pat_name, round(prob, 2))
     else:
