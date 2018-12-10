@@ -42,13 +42,10 @@ feature_set_1 = ['admission_type', 'total_prior_admits','gender', 'age', 'length
 #### Create options for patient ID Dropdown - This will probably be replaced in the future
 patients = adm_data.hadm_id
 
-app = dash.Dash()
+app = dash.Dash(__name__)
 
-app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
-# external_css = ["https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css",
-#                 "https://cdn.rawgit.com/plotly/dash-app-stylesheets/737dc4ab11f7a1a8d6b5645d26f69133d97062ae/dash-wind-streaming.css",
-#                 "https://fonts.googleapis.com/css?family=Raleway:400,400i,700,700i",
-#                 "https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i"]
+# app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
+# app.css.append_css({'relative_package_path'}).append('./stylesheet.css')
 
 
 # Suppress callback exception warnings
@@ -73,15 +70,9 @@ app.layout = html.Div(children=[
            'padding': '5px'}
     ),
 
-    # html.Div([
-    #     html.Div([
-    #         html.H3("placeholder")
-    #     ], className='Title')
-    # ],
-    # className='row wind-speed-row'
-    # ),
+    ## Title ##
     html.Div([
-            html.H3('Patient Discharge Summary',
+            html.H2('Patient Discharge Summary',
                 style={'text-align': 'center',
                 'color': 'White'})
         ],
@@ -102,67 +93,54 @@ app.layout = html.Div(children=[
             		# min_date_allowed=dt(2018, 6, 4),
             		initial_visible_month=dt(2018, 1, 1),
             		date=dt.now(),
-            		display_format='MMM Do, YYYY'
+            		display_format='MMM Do, YYYY',
             	)
-            ]
-            ),
+            ],
+            style={'padding-bottom': '15px'}
+            ),  
 
             #Input for patient name
             html.Div([
-                html.Br(),
+                # html.Br(),
                 html.P('Patient Name: ',
                     style={'color': 'White'}),
                 dcc.Input(
                     id='pat-name',
                     placeholder='Enter patient name...',
                     style={'width': '50%',
-                            'height': 25}
+                            'height': '36px',
+                            'font-size': '14px',
+                            'padding-left': '7px'}
                 ),
-                html.Br()
             ],
-            #style={'width': '45%'}
+            style={'padding-bottom': '15px'}
             ),
-
 
             #Input for patient name
             html.Div([
-                html.Br(),
+                # html.Br(),
                 html.P('Patient Age: ',
                     style={'color': 'White'}),
                 dcc.Input(
                     id='pat-age',
                     placeholder='Enter patient age...',
                     style={'width': '50%',
-                            'height': 25}
+                            'height': '36px',
+                            'font-size': '14px',
+                            'padding-left': '7px'}
                 ),
-                html.Br()
             ],
-            #style={'width': '45%'}
-            ),
-
-            ## List of diagnoses IDs
-            html.Div([
-                html.Br(),
-                html.P('Diagnosis IDs:',
-                    style={'color': 'White'}
-                ),
-                dcc.Textarea(
-                    id='diagnosis',
-                    placeholder='Enter diagnosis codes...',
-                    style={'width': '100%'}
-                ),
-                html.Br()
-            ],
-            # style={'width': '100%'}
+            style={'padding-bottom': '15px'}
             ),
         ],
         className='six columns data-entry',
         style={
             'background-color':'#1b0066',
-            'padding': '10px'}
+            'padding-left': '10px',
+            'padding-right': '10px'}
         ),
 
-        ## Risk Output ##
+        ## Second column input ##
         html.Div(children=[
             # html.Div([
             #     html.H3('Risk of HAI',
@@ -180,9 +158,11 @@ app.layout = html.Div(children=[
                     options=[{'label': str(num), 'value': str(num)} for num in patients],
                     searchable=True
                 ),
-                html.Br()
+                # html.Br()
             ],
-            #style={'width': '45%'}
+            style={'padding-bottom': '15px',
+                   'width': '96%'
+            }
             ),
 
             ## Patient Insurance
@@ -200,9 +180,11 @@ app.layout = html.Div(children=[
                     ],
                     searchable=False
                 ),
-                html.Br()
+                # html.Br()
             ],
-            #style={'width': '45%'}
+            style={'padding-bottom': '15px',
+                    'width': '96%'
+            }
             ),
 
             ## Admission type
@@ -217,43 +199,57 @@ app.layout = html.Div(children=[
                         {'label': 'Newborn', 'value': 'newborn'},
                         {'label': 'Urgent', 'value': 'urgent'}
                     ],
-                    searchable=False
+                    searchable=False,
                 ),
-                html.Br()
             ],
-            #style={'width': '45%'}
-            ),
-
-            html.Div([
-                html.P('Discharge Notes:',
-                    style={'color': 'White'}
-                ),
-                dcc.Textarea(
-                    id='discharge',
-                    placeholder='Enter discharge notes...',
-                    style={'width': '100%'}
-                )
-            ]
-            ),
-
-            ## Button to calculate risk
-            html.Div([
-                html.Br(),
-                html.Button(
-                'Calculate Readmission Risk',
-                id='my-button',
-                style={'background-color': 'LightGrey'})
-            ]
+            style={'padding-bottom': '15px',
+                    'width': '96%'
+            }
             ),
         ],
         className='six columns output',
-        style={
-            'height': '450px',
-            # 'color':'White',
-            'padding': '10px'}
+        # style={
+        #     'padding': '15px'}
         )
     ],
-    className='row main-input'
+    className='row main-input',
+    ),
+
+    html.Div(children=[
+
+        html.Div([
+            html.P('Discharge Notes:',
+                style={'color': 'White',
+                        'font-size': '22px'
+                }
+            ),
+            dcc.Textarea(
+                id='discharge',
+                placeholder='Enter discharge notes...',
+                style={'width': '100%',
+                    'height': '150px'
+                }
+            )
+        ]
+        ),
+
+        ## Button to calculate risk
+        html.Div([
+            # html.Br(),
+            html.Button(
+            'Calculate Readmission Risk',
+            id='my-button',
+            style={'background-color': 'LightGrey'})
+        ],
+        style={'padding-top': '15px'}
+        ),
+    ],
+    className='row notes-input',
+    style={
+        'background-color':'#1b0066',
+        'padding-left': '10px',
+        'padding-right': '10px',
+        'font-size': 20}
     ),
 
     html.Div(children=[
@@ -278,22 +274,13 @@ style={
     'padding': '0px 10px 10px 10px',
     'marginLeft': 'auto',
     'marginRight': 'auto',
+    'font-size': 22,
     'background-color': '#1b0066',
     "width": "800px",
     'boxShadow': '0px 0px 15px 15px rgba(204,204,204,0.4)'}
 )
 
-## Given patient ID, predict probability of HAI
-# @app.callback(
-#     Output('pred_score', 'children'),
-#     [Input('pat-id', 'value'),
-#      Input('insurance', 'value'),
-#      Input('adm_type', 'value'),
-#      Input('marital', 'value'),
-#      Input('button', 'n_clicks')],
-#     [State('pat-id', 'value'),
-#      State('insurance', 'value')])
-
+## Given patient ID, predict probability of readmission
 @app.callback(
     Output('pred_score', 'children'),
     [Input('my-button', 'n_clicks')],
@@ -301,19 +288,17 @@ style={
      State('pat-id', 'value'),
      State('insurance', 'value'),
      State('adm_type', 'value'),
-     State('diagnosis', 'value'),
      State('discharge', 'value')]
 )
-def predict_hai_risk(n_clicks, pat_name, pat_id, ins, adm_type, diagnosis, discharge):
-    pat_id = int(pat_id)
+def predict_hai_risk(n_clicks, pat_name, pat_id, ins, adm_type, discharge):
     if n_clicks > 0 and (pat_name == None or pat_id==None):
         return 'Please complete data entry...'
     if pat_id == None:
         return 'Enter patient data for readmission risk evaluation...'
+    else:
+        pat_id = int(pat_id)
 
     note = discharge.replace("\\n", " ")
-    
-    # print(H.tokenize_clinic_notes(note)[:20])
 
     note_vector = w2vVectorizer.vectorizeSingleNote(note)
 
@@ -321,20 +306,10 @@ def predict_hai_risk(n_clicks, pat_name, pat_id, ins, adm_type, diagnosis, disch
     pat = H.prepPatient(adm_data, pat_id, note_vector, feature_set_1)
     prob = lr_model.predict_proba([pat])[0][1] * 100
     
-    if prob >= 30:
-        return '{} has a {}% risk for developing a complication within 30 days. Recommend scheduling follow up with primary care physician within 2 weeks'.format(pat_name, round(prob, 2))
+    if prob >= 40:
+        return '{} is at a {}% risk of returning with an unexpected complication within 30 days. Recommend scheduling follow up with primary care physician within 2 weeks'.format(pat_name, round(prob, 2))
     else:
-        return '{} is NOT at risk for developing complications within 30 days.'.format(pat_name)
-
-    # if prob >= 35:
-    #     return 'Patient has a {}% risk of HAI. Take extra precautions when treating.'.format(round(prob, 2))
-    # else:
-    #     return 'Patient has a {}% risk of HAI.'.format(round(prob, 2))
-
-# if 'DYNO' in os.environ:
-#     app.scripts.append_script({
-#         'external_url': 'https://cdn.rawgit.com/chriddyp/ca0d8f02a1659981a0ea7f013a378bbd/raw/e79f3f789517deec58f41251f7dbb6bee72c44ab/plotly_ga.js'
-#     })
+        return '{} is NOT at risk for requiring unexpected readmission within 30 days.'.format(pat_name)
 
 if __name__ == '__main__':
 	app.run_server(debug=True)
